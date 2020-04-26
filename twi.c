@@ -41,9 +41,9 @@ void IMU_set_10DOF_Waveshare(){
 //    APP_ERROR_CHECK(err_code);
 //    while (m_xfer_done == false);
 }
-void calibrate(address){
+void MPU9255_calibrate(address){
   
-  flush_buffers();
+  MPU9255_flush_buffers();
 
   int calibration_range = 100;
   uint32_t cal_AX =0;
@@ -53,12 +53,12 @@ void calibrate(address){
   uint32_t cal_GY =0;
   uint32_t cal_GZ =0;
   for(int i=0;i<calibration_range;i++){
-    cal_AX += twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L);
-    cal_AY += twi_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L);
-    cal_AZ += twi_read_sensor_reg(address,ACCEL_ZOUT_H,ACCEL_ZOUT_L);
-    cal_GX += twi_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L);
-    cal_GY += twi_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L);
-    cal_GZ += twi_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L);
+    cal_AX += MPU9255_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L);
+    cal_AY += MPU9255_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L);
+    cal_AZ += MPU9255_read_sensor_reg(address,ACCEL_ZOUT_H,ACCEL_ZOUT_L);
+    cal_GX += MPU9255_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L);
+    cal_GY += MPU9255_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L);
+    cal_GZ += MPU9255_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L);
     nrf_delay_ms(10);
   }
   
@@ -70,10 +70,10 @@ void calibrate(address){
   cal_gyro_buffer[2] = cal_GZ/calibration_range;
   NRF_LOG_INFO("callibration Accel_data: AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",cal_accel_buffer[0],cal_accel_buffer[1],cal_accel_buffer[2],cal_gyro_buffer[0],cal_gyro_buffer[1],cal_gyro_buffer[2]);
 
-  flush_buffers();
+  MPU9255_flush_buffers();
 }
 
-void flush_buffers(){
+void MPU9255_flush_buffers(){
   accel_buffer[0]=0;
   accel_buffer[1]=0;
   accel_buffer[2]=0;
@@ -82,21 +82,29 @@ void flush_buffers(){
   gyro_buffer[2]=0;
 }
 
-void twi_read_sensor(uint8_t address){
+void MPU9255_read_sensor(uint8_t address){
 
-  accel_buffer[0] = twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[0];
-  accel_buffer[1] = twi_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L)-cal_accel_buffer[1];
-  accel_buffer[2] = twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[2];
-  gyro_buffer[0] = twi_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L)-cal_gyro_buffer[0];
-  gyro_buffer[1] = twi_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L)-cal_gyro_buffer[1];
-  gyro_buffer[2] = twi_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L)-cal_gyro_buffer[2];
-  NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
+  accel_buffer[0] = MPU9255_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[0];
+  accel_buffer[1] = MPU9255_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L)-cal_accel_buffer[1];
+  accel_buffer[2] = MPU9255_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[2];
+  gyro_buffer[0] = MPU9255_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L)-cal_gyro_buffer[0];
+  gyro_buffer[1] = MPU9255_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L)-cal_gyro_buffer[1];
+  gyro_buffer[2] = MPU9255_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L)-cal_gyro_buffer[2];
+//  NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
 
+}
+
+uint16_t* MPU9255_get_accel_values(void){
+  return accel_buffer;
+}
+
+uint16_t* MPU9255_get_gyro_values(void){
+  return gyro_buffer;
 }
 /**
  * @brief Function for reading data from temperature sensor.
  */
-uint16_t twi_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low)
+uint16_t MPU9255_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low)
 {
     uint8_t reg_read_data[2];
     ret_code_t err_code = nrf_drv_twi_tx(&m_twi, address, &reg_high, sizeof(uint8_t), false);

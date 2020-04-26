@@ -705,15 +705,28 @@ int main(void)
     twi_init();
     uint8_t address = twi_find_device();
     MPU9255_init(address);
-    calibrate(address);
+    MPU9255_calibrate(address);
    
     NRF_LOG_INFO("Device with 0x%x address found.",address);
     advertising_start(erase_bonds);
-
+    uint16_t* accel_buffer;
+    uint16_t* gyro_buffer;
     // Enter main loop.
     for (;;)
     {   
-        twi_read_sensor(address);
+        MPU9255_read_sensor(address);
+        accel_buffer = MPU9255_get_accel_values();
+        gyro_buffer = MPU9255_get_accel_values();
+//        NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
+
+        app_set_accel_X(accel_buffer[0]);
+        app_set_accel_Y(accel_buffer[1]);
+        app_set_accel_Z(accel_buffer[2]);
+
+        app_set_gyro_X(gyro_buffer[0]);
+        app_set_gyro_Y(gyro_buffer[1]);
+        app_set_gyro_Z(gyro_buffer[2]);
+
         idle_state_handle();
         nrf_delay_ms(100);
     }

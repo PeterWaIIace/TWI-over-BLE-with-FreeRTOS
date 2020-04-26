@@ -75,10 +75,13 @@ int twi_find_device(void);
 /**
  * @brief Function for find twi sensor.
  */
-void calibrate();
-void flush_buffers();
-void twi_read_sensor(uint8_t address);
+void MPU9255_calibrate();
+void MPU9255_flush_buffers();
+void MPU9255_read_sensor(uint8_t address);
 
-uint16_t twi_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low);
+uint16_t* MPU9255_get_accel_values(void);
+uint16_t* MPU9255_get_gyro_values(void);
+
+uint16_t MPU9255_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low);
 
 #endif /* __TWI_H__ */

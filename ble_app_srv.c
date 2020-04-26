@@ -4,27 +4,27 @@
 /************************************ Client Interface ******************************************/
 
 void app_set_accel_X(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->acc_X,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->acc_X,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 void app_set_accel_Y(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->acc_Y,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->acc_Y,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 void app_set_accel_Z(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->acc_Z,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->acc_Z,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 void app_set_gyro_X(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_X,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_X,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 void app_set_gyro_Y(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_Y,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_Y,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 void app_set_gyro_Z(uint16_t value){
-  app_update_cus_value(&app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_Z,&value,sizeof(value)/sizeof(uint8_t));
+  app_update_cus_value(*app_internal_conn_handle,&app_internal_ptr_to_srv->gyro_Z,(uint8_t*)(&value),sizeof(value)/sizeof(uint8_t));
 }
 
 /*************************************** BLE LIBRARY ********************************************/
@@ -84,7 +84,6 @@ void ble_app_service_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
             // No implementation needed.
             break;
     }
-
 };
 
 
@@ -147,7 +146,7 @@ uint32_t ble_app_service_init(ble_app_service_t * p_app_service, \
 
 uint32_t app_update_cus_value(uint16_t conn_handle, \
                               ble_gatts_char_handles_t * char_handle, uint8_t* buffer, size_t len_of_buffer){
-                              
+    
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
 
@@ -159,18 +158,19 @@ uint32_t app_update_cus_value(uint16_t conn_handle, \
     gatts_value.p_value = buffer;
 
     // Update database.
-//    NRF_LOG_INFO("Pointer to char_handle: %d", char_handle));
+//    NRF_LOG_INFO("Pointer to char_handle: %x", char_handle);
 //    NRF_LOG_INFO("New value: %d", *(gatts_value.p_value)); 
  
     err_code = sd_ble_gatts_value_set(conn_handle,
                                       char_handle->value_handle,
                                       &gatts_value);
     
-//    NRF_LOG_INFO("Updating characteristic"); 
+//    NRF_LOG_INFO("Updating characteristic! err_code: %x",err_code); 
     if (err_code != NRF_SUCCESS)
     {
+        NRF_LOG_INFO("here");
         return err_code;
-   }
+    }
 
    
     if ((conn_handle != BLE_CONN_HANDLE_INVALID)) 
