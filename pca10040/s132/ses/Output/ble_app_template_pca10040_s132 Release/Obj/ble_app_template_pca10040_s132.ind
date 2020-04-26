@@ -77,6 +77,7 @@
 "Output/ble_app_template_pca10040_s132 Release/Obj/nrf_sdh_ble.o"
 "Output/ble_app_template_pca10040_s132 Release/Obj/nrf_sdh_soc.o"
 "Output/ble_app_template_pca10040_s132 Release/Obj/twi.o"
+"Output/ble_app_template_pca10040_s132 Release/Obj/ble_app_srv.o"
 "/usr/share/segger_embedded_studio_for_arm_4.12/lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
 "/usr/share/segger_embedded_studio_for_arm_4.12/lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
 "/usr/share/segger_embedded_studio_for_arm_4.12/lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"

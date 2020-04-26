@@ -1,55 +1,3 @@
-/**
- * Copyright (c) 2014 - 2019, Nordic Semiconductor ASA
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form, except as embedded into a Nordic
- *    Semiconductor ASA integrated circuit in a product or a software update for
- *    such product, must reproduce the above copyright notice, this list of
- *    conditions and the following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
- *
- * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
- *
- * 4. This software, with or without modification, must only be used with a
- *    Nordic Semiconductor ASA integrated circuit.
- *
- * 5. Any software provided in binary form under this license must not be reverse
- *    engineered, decompiled, modified and/or disassembled.
- *
- * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-/** @file
- *
- * @defgroup ble_sdk_app_template_main main.c
- * @{
- * @ingroup ble_sdk_app_template
- * @brief Template project main file.
- *
- * This file contains a template for creating a new application. It has the code necessary to wakeup
- * from button, advertise, get a connection restart advertising on disconnect and if no new
- * connection created go back to system-off mode.
- * It can easily be used as a starting point for creating a new application, the comments identified
- * with 'YOUR_JOB' indicates where and how you can customize.
- */
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -86,9 +34,10 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
+#include "ble_app_srv.h"
 
-#define DEVICE_NAME                     "Nordic_Template"                       /**< Name of device. Will be included in the advertising data. */
-#define MANUFACTURER_NAME               "NordicSemiconductor"                   /**< Manufacturer. Will be passed to Device Information Service. */
+#define DEVICE_NAME                     "Motion Controller"                       /**< Name of device. Will be included in the advertising data. */
+#define MANUFACTURER_NAME               ""                   /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 
 #define APP_ADV_DURATION                18000                                   /**< The advertising duration (180 seconds) in units of 10 milliseconds. */
@@ -115,10 +64,10 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 BLE_ADVERTISING_DEF(m_advertising);                                             /**< Advertising module instance. */
+BLE_APP_DEF(m_app_service);
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -278,6 +227,25 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
 }
 */
 
+static void app_evt_handler(ble_app_service_t * p_app_service, ble_app_evt_t * p_evt)
+{
+    // Action to perform when the Data I/O characteristic notifications are enabled
+    // Add your implementation here
+    if (p_evt->evt_type == BLE_APP_EVT_NOTIFICATION_ENABLED)
+    {
+      // Possibly save to a global variable to know that notifications are ENABLED
+      NRF_LOG_INFO("Notifications ENABLED on APP Characteristic");
+    }
+    else if (p_evt->evt_type == BLE_APP_EVT_NOTIFICATION_DISABLED)
+    {
+      // Possibly save to a global variable to know that notifications are DISABLED
+      NRF_LOG_INFO("Notifications DISABLED on APP Characteristic");
+    }
+
+    // Handle any other events necessary...
+};
+
+
 /**@brief Function for initializing services that will be used by the application.
  */
 static void services_init(void)
@@ -289,6 +257,12 @@ static void services_init(void)
     qwr_init.error_handler = nrf_qwr_error_handler;
 
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
+    APP_ERROR_CHECK(err_code);
+
+    ble_app_service_init_t app_init = {0};
+
+    err_code = ble_app_service_init(&m_app_service, &app_init, &m_conn_handle);
+    NRF_LOG_INFO("err_code %x",err_code);
     APP_ERROR_CHECK(err_code);
 
     /* YOUR_JOB: Add code to initialize the services used by the application.
@@ -727,7 +701,7 @@ int main(void)
     NRF_LOG_INFO("Template example started.");
     application_timers_start();
     
-    // TWI init and find sensor
+//    // TWI init and find sensor
     twi_init();
     uint8_t address = twi_find_device();
     MPU9255_init(address);

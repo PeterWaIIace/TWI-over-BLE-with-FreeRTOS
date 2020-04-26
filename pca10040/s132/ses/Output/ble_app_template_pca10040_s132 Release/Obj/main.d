@@ -126,4 +126,5 @@ Output/ble_app_template_pca10040_s132\ Release/Obj/main.o: \
  ../../../../../../components/libraries/memobj/nrf_memobj.h \
  /usr/share/segger_embedded_studio_for_arm_4.12/include/stdlib.h \
  ../../../../../../components/libraries/balloc/nrf_balloc.h \
- ../../../../../../components/libraries/log/nrf_log_default_backends.h
+ ../../../../../../components/libraries/log/nrf_log_default_backends.h \
+ /home/wallace/Projects/embedded/nRF5_SDK_16.0.0_98a08e2/examples/ble_peripheral/twi_over_ble_freertos/ble_app_srv.h
