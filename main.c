@@ -730,8 +730,10 @@ int main(void)
     // TWI init and find sensor
     twi_init();
     uint8_t address = twi_find_device();
+    MPU9255_init(address);
+    calibrate(address);
+   
     NRF_LOG_INFO("Device with 0x%x address found.",address);
-
     advertising_start(erase_bonds);
 
     // Enter main loop.

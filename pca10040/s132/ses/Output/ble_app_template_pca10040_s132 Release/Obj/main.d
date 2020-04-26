@@ -115,6 +115,7 @@ Output/ble_app_template_pca10040_s132\ Release/Obj/main.o: \
  ../../../../../../modules/nrfx/hal/nrf_twim.h \
  ../../../../../../modules/nrfx/drivers/include/nrfx_twi.h \
  ../../../../../../modules/nrfx/hal/nrf_twi.h \
+ ../../../../../../components/libraries/delay/nrf_delay.h \
  ../../../../../../components/libraries/log/nrf_log.h \
  ../../../../../../components/libraries/strerror/nrf_strerror.h \
  ../../../../../../components/libraries/log/src/nrf_log_internal.h \
@@ -125,5 +126,4 @@ Output/ble_app_template_pca10040_s132\ Release/Obj/main.o: \
  ../../../../../../components/libraries/memobj/nrf_memobj.h \
  /usr/share/segger_embedded_studio_for_arm_4.12/include/stdlib.h \
  ../../../../../../components/libraries/balloc/nrf_balloc.h \
- ../../../../../../components/libraries/log/nrf_log_default_backends.h \
- ../../../../../../components/libraries/delay/nrf_delay.h
+ ../../../../../../components/libraries/log/nrf_log_default_backends.h

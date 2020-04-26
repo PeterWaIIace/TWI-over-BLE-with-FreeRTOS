@@ -41,16 +41,56 @@ void IMU_set_10DOF_Waveshare(){
 //    APP_ERROR_CHECK(err_code);
 //    while (m_xfer_done == false);
 }
+void calibrate(address){
+  
+  flush_buffers();
+
+  int calibration_range = 100;
+  uint32_t cal_AX =0;
+  uint32_t cal_AY =0;
+  uint32_t cal_AZ =0;
+  uint32_t cal_GX =0;
+  uint32_t cal_GY =0;
+  uint32_t cal_GZ =0;
+  for(int i=0;i<calibration_range;i++){
+    cal_AX += twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L);
+    cal_AY += twi_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L);
+    cal_AZ += twi_read_sensor_reg(address,ACCEL_ZOUT_H,ACCEL_ZOUT_L);
+    cal_GX += twi_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L);
+    cal_GY += twi_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L);
+    cal_GZ += twi_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L);
+    nrf_delay_ms(10);
+  }
+  
+  cal_accel_buffer[0] = cal_AX/calibration_range;
+  cal_accel_buffer[1] = cal_AY/calibration_range;
+  cal_accel_buffer[2] = cal_AZ/calibration_range;
+  cal_gyro_buffer[0] = cal_GX/calibration_range;
+  cal_gyro_buffer[1] = cal_GY/calibration_range;
+  cal_gyro_buffer[2] = cal_GZ/calibration_range;
+  NRF_LOG_INFO("callibration Accel_data: AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",cal_accel_buffer[0],cal_accel_buffer[1],cal_accel_buffer[2],cal_gyro_buffer[0],cal_gyro_buffer[1],cal_gyro_buffer[2]);
+
+  flush_buffers();
+}
+
+void flush_buffers(){
+  accel_buffer[0]=0;
+  accel_buffer[1]=0;
+  accel_buffer[2]=0;
+  gyro_buffer[0]=0;
+  gyro_buffer[1]=0;
+  gyro_buffer[2]=0;
+}
 
 void twi_read_sensor(uint8_t address){
 
-  accel_buffer[0] = twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L);
-  accel_buffer[1] = twi_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L);
-  accel_buffer[2] = twi_read_sensor_reg(address,ACCEL_ZOUT_H,ACCEL_ZOUT_L);
-  accel_buffer[3] = twi_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L);
-  accel_buffer[4] = twi_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L);
-  accel_buffer[5] = twi_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L);
-  NRF_LOG_INFO("Accel_data: AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],accel_buffer[3],accel_buffer[4],accel_buffer[5]);
+  accel_buffer[0] = twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[0];
+  accel_buffer[1] = twi_read_sensor_reg(address,ACCEL_YOUT_H,ACCEL_YOUT_L)-cal_accel_buffer[1];
+  accel_buffer[2] = twi_read_sensor_reg(address,ACCEL_XOUT_H,ACCEL_XOUT_L)-cal_accel_buffer[2];
+  gyro_buffer[0] = twi_read_sensor_reg(address,GYRO_XOUT_H,GYRO_XOUT_L)-cal_gyro_buffer[0];
+  gyro_buffer[1] = twi_read_sensor_reg(address,GYRO_YOUT_H,GYRO_YOUT_L)-cal_gyro_buffer[1];
+  gyro_buffer[2] = twi_read_sensor_reg(address,GYRO_ZOUT_H,GYRO_ZOUT_L)-cal_gyro_buffer[2];
+  NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
 
 }
 /**
@@ -59,12 +99,12 @@ void twi_read_sensor(uint8_t address){
 uint16_t twi_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low)
 {
     uint8_t reg_read_data[2];
-    ret_code_t err_code = nrf_drv_twi_tx(&m_twi, address, &reg_high, sizeof(reg_high), false);
+    ret_code_t err_code = nrf_drv_twi_tx(&m_twi, address, &reg_high, sizeof(uint8_t), false);
     APP_ERROR_CHECK(err_code);
 
     err_code = nrf_drv_twi_rx(&m_twi, address, &reg_read_data[0], sizeof(accel_buffer[0]));
 
-    err_code = nrf_drv_twi_tx(&m_twi, address, &reg_low, sizeof(reg_low), false);
+    err_code = nrf_drv_twi_tx(&m_twi, address, &reg_low, sizeof(uint8_t), false);
     APP_ERROR_CHECK(err_code);
 
     err_code = nrf_drv_twi_rx(&m_twi, address, &reg_read_data[1], sizeof(accel_buffer[0]));
@@ -74,6 +114,23 @@ uint16_t twi_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_low)
     return data_to_return;
 }
 
+void MPU9255_init(uint8_t address){
+    ret_code_t err_code = nrf_drv_twi_tx(&m_twi, address, PWR_MGMT_1, sizeof(uint8_t), false);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_twi_tx(&m_twi, address, SMPLRT_DIV, sizeof(uint8_t), false);
+    APP_ERROR_CHECK(err_code);
+    
+    err_code = nrf_drv_twi_tx(&m_twi, address, CONFIG, sizeof(uint8_t), false);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_twi_tx(&m_twi, address, GYRO_CONFIG, sizeof(uint8_t), false);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_twi_tx(&m_twi, address, ACCEL_CONFIG, sizeof(uint8_t), false);
+    APP_ERROR_CHECK(err_code);
+
+}
 
 void twi_init (void){
     ret_code_t err_code;
