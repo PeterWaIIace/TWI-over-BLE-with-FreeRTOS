@@ -703,7 +703,14 @@ int main(void)
     
 //    // TWI init and find sensor
     twi_init();
-    uint8_t address = twi_find_device();
+    
+    uint8_t address = 0; 
+    while(0 == address ){ // wait for connecting device 
+      address = twi_find_device();
+      NRF_LOG_INFO("inside loop");
+    }
+    
+    NRF_LOG_INFO("after loop");
     MPU9255_init(address);
     MPU9255_calibrate(address);
    
@@ -717,7 +724,7 @@ int main(void)
         MPU9255_read_sensor(address);
         accel_buffer = MPU9255_get_accel_values();
         gyro_buffer = MPU9255_get_accel_values();
-//        NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
+        NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
 
         app_set_accel_X(accel_buffer[0]);
         app_set_accel_Y(accel_buffer[1]);

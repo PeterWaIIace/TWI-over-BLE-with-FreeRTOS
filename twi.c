@@ -125,7 +125,6 @@ uint16_t MPU9255_read_sensor_reg(uint8_t address,uint8_t reg_high,uint8_t reg_lo
 void MPU9255_init(uint8_t address){
     ret_code_t err_code = nrf_drv_twi_tx(&m_twi, address, PWR_MGMT_1, sizeof(uint8_t), false);
     APP_ERROR_CHECK(err_code);
-
     err_code = nrf_drv_twi_tx(&m_twi, address, SMPLRT_DIV, sizeof(uint8_t), false);
     APP_ERROR_CHECK(err_code);
     
@@ -140,7 +139,7 @@ void MPU9255_init(uint8_t address){
 
 }
 
-void twi_init (void){
+void twi_init (void){ // add global flag for init 
     ret_code_t err_code;
 
     const nrf_drv_twi_config_t twi_config = {
@@ -186,8 +185,10 @@ int twi_find_device(void)
 
     if (!detected_device)
     {
+        address = 0;
         NRF_LOG_INFO("No device was found.");
         NRF_LOG_FLUSH();
+        
     }
 
     return address;
