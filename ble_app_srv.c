@@ -168,7 +168,7 @@ uint32_t app_update_cus_value(uint16_t conn_handle, \
 //    NRF_LOG_INFO("Updating characteristic! err_code: %x",err_code); 
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_INFO("here");
+//        NRF_LOG_INFO("here");
         return err_code;
     }
 

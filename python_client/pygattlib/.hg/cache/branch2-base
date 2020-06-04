@@ -1,8 +1,0 @@
-ef6664d03577546fdf60c68e07b788e55d3d77b0 91
-ef6664d03577546fdf60c68e07b788e55d3d77b0 o default
-94b9a5d35898b7f19c16d43a19314fb4d43d8056 o fix-issue-53
-fc4db39350b163d707e3148a6b16a397c8b83e78 o jack-connect-kwargs
-2f0f9a42f37a0906a4a94ec579b6483ddfa1a95f o jack-discover-services
-245d0f644aaf513b70b465d708a9f47b1390e9ba o pull-req-2
-9eed59747bbafc3e9afba0db9f32c4f6efd54beb o py3
-07c57bc636154a5afd550aeb74d3a7cac30e0a1c o smac89/updated-makefile-to-use-correct-version--1480061685503
