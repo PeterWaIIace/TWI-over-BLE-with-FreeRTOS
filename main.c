@@ -26,7 +26,8 @@
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
 /* Project specific librarie */
-#include "twi.h"
+#include "MPU9255.h"
+#include "app_twi.h"
 #include "nrf_delay.h"
 
 /* Logging libraries */
@@ -724,7 +725,7 @@ int main(void)
         MPU9255_read_sensor(address);
         accel_buffer = MPU9255_get_accel_values();
         gyro_buffer = MPU9255_get_accel_values();
-        NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
+//        NRF_LOG_INFO("AX: %d | AY: %d | AZ: %d | GX: %d | GY: %d | GZ: %d ",accel_buffer[0],accel_buffer[1],accel_buffer[2],gyro_buffer[0],gyro_buffer[1],gyro_buffer[2]);
 //
         app_set_accel_X(accel_buffer[0]);
         app_set_accel_Y(accel_buffer[1]);
